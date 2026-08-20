@@ -1,35 +1,43 @@
 #!/usr/bin/env node
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const fs = require('fs');
 
 function findHvigorCli() {
-  // 1. local oh_modules (after ohpm install)
-  const local = path.resolve(process.cwd(), 'oh_modules/@ohos/hvigor/bin/hvigor.js');
-  if (fs.existsSync(local)) {
-    return local;
-  }
-  // 2. local node_modules (fallback)
-  const node = path.resolve(process.cwd(), 'node_modules/@ohos/hvigor/bin/hvigor.js');
-  if (fs.existsSync(node)) {
-    return node;
-  }
-  // 3. global
+  // 1. Prefer pre-installed hvigor in PATH (CI image usually has this)
   try {
-    const globalDir = require('child_process').execSync('npm root -g', { encoding: 'utf8' }).trim();
-    const global = path.join(globalDir, '@ohos/hvigor/bin/hvigor.js');
-    if (fs.existsSync(global)) {
-      return global;
+    const hvigorPath = execSync(
+      process.platform === 'win32' ? 'where hvigor' : 'command -v hvigor',
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }
+    )
+      .toString()
+      .split(/\r?\n/)[0]
+      .trim();
+    if (hvigorPath && fs.existsSync(hvigorPath)) {
+      return { bin: hvigorPath, args: [] };
     }
   } catch (e) {
     // ignore
   }
-  throw new Error('Cannot find @ohos/hvigor. Please run "ohpm install" first.');
+
+  // 2. local oh_modules (after ohpm install)
+  const local = path.resolve(process.cwd(), 'oh_modules/@ohos/hvigor/bin/hvigor.js');
+  if (fs.existsSync(local)) {
+    return { bin: process.execPath, args: [local] };
+  }
+
+  // 3. local node_modules (fallback)
+  const node = path.resolve(process.cwd(), 'node_modules/@ohos/hvigor/bin/hvigor.js');
+  if (fs.existsSync(node)) {
+    return { bin: process.execPath, args: [node] };
+  }
+
+  throw new Error('Cannot find hvigor. Please ensure HarmonyOS build tools are installed, or run "ohpm install" if dependencies exist.');
 }
 
 const cli = findHvigorCli();
-const args = process.argv.slice(2);
-const child = spawn(process.execPath, [cli, ...args], {
+const userArgs = process.argv.slice(2);
+const child = spawn(cli.bin, [...cli.args, ...userArgs], {
   stdio: 'inherit',
   cwd: process.cwd(),
 });
