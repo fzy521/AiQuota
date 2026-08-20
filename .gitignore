@@ -2,7 +2,9 @@
 .idea/
 .gradle/
 /local.properties
-/.hvigor/
+/.hvigor/cache/
+/.hvigor/report/
+/.hvigor/workspace/
 /build/
 /entry/.preview/
 /entry/build/
@@ -10,3 +12,6 @@
 /.cxx/
 *.iml
 .DS_Store
+hvigorw.bat
+
+# Keep: .hvigor/hvigor-config.json5 .hvigor/hvigor-wrapper.js hvigorw
