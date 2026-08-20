@@ -1,0 +1,12 @@
+# DevEco Studio / HarmonyOS
+.idea/
+.gradle/
+/local.properties
+/.hvigor/
+/build/
+/entry/.preview/
+/entry/build/
+/oh_modules/
+/.cxx/
+*.iml
+.DS_Store

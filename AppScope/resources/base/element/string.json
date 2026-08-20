@@ -1,0 +1,12 @@
+{
+  "string": [
+    {
+      "name": "app_name",
+      "value": "AiQuota"
+    },
+    {
+      "name": "app_desc",
+      "value": "AI Provider Coding Plan remaining usage"
+    }
+  ]
+}
