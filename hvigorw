@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# 简化版 hvigorw：优先使用环境中已安装的 hvigor（DevEco Studio / 命令行工具自带）
 set -e
-DIR="$(cd "$(dirname "$0")" && pwd)"
-exec node "$DIR/.hvigor/hvigor-wrapper.js" "$@"
+if command -v hvigor >/dev/null 2>&1; then
+  exec hvigor "$@"
+fi
+echo "hvigor not found in PATH. Please use DevEco Studio Terminal or install HarmonyOS command-line tools." >&2
+exit 1

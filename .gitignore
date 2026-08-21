@@ -2,9 +2,7 @@
 .idea/
 .gradle/
 /local.properties
-/.hvigor/cache/
-/.hvigor/report/
-/.hvigor/workspace/
+/.hvigor/
 /build/
 /entry/.preview/
 /entry/build/
@@ -14,4 +12,4 @@
 .DS_Store
 hvigorw.bat
 
-# Keep: .hvigor/hvigor-config.json5 .hvigor/hvigor-wrapper.js hvigorw
+# Keep: hvigor/hvigor-config.json5 and hvigorw are committed
