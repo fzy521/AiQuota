@@ -93,19 +93,36 @@ struct Index {
   }
 
   private progressColor(percent: number): string {
-    if (percent < 20) return '#FF4D4F';
-    if (percent < 50) return '#FF7D00';
+    if (percent < 20) {
+      return '#FF4D4F';
+    }
+    if (percent < 50) {
+      return '#FF7D00';
+    }
     return '#00B578';
   }
 
   private formatTime(ts: number): string {
-    if (ts <= 0) return '未刷新';
+    if (ts <= 0) {
+      return '未刷新';
+    }
     const d = new Date(ts);
     return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
   }
 
-  private mostUrgentWindow(info: UsageInfo): UsageWindow | undefined {
-    if (!info || info.windows.length === 0) return undefined;
+  // build/@Builder 中不允许声明局部变量，通过方法获取展示数据
+  private getInfo(providerId: string): UsageInfo {
+    const found = this.usageMap[providerId];
+    if (found !== undefined) {
+      return found;
+    }
+    return { providerId: providerId, windows: [], updatedAt: 0 };
+  }
+
+  private mostUrgentWindow(info: UsageInfo): UsageWindow {
+    if (info.windows.length === 0) {
+      return { label: '', remaining: 0, limit: 0, remainingPercent: 0, resetTime: '' };
+    }
     let min = info.windows[0];
     for (const w of info.windows) {
       if (w.remainingPercent < min.remainingPercent) {
@@ -130,9 +147,7 @@ struct Index {
   }
 
   @Builder
-  ProviderItem(provider: ProviderConfig) {
-    const info = this.usageMap[provider.id];
-    const urgent = info ? this.mostUrgentWindow(info) : undefined;
+  ProviderItem(provider: ProviderConfig, info: UsageInfo) {
     Column() {
       Row() {
         Text(provider.name || PROVIDER_TYPE_LABELS[provider.type])
@@ -146,26 +161,26 @@ struct Index {
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
 
-      if (info?.error) {
+      if (info.error !== undefined && info.error.length > 0) {
         Text(`错误: ${info.error}`)
           .fontSize(12)
           .fontColor('#FF4D4F')
           .width('100%')
           .margin({ top: 4 })
-      } else if (info?.balance !== undefined) {
+      } else if (info.balance !== undefined) {
         Text(`余额: ${info.balance.toFixed(4)} ${info.balanceUnit ?? ''}`)
           .fontSize(14)
           .fontColor('#333333')
           .width('100%')
           .margin({ top: 4 })
-      } else if (urgent) {
+      } else if (info.windows.length > 0) {
         Row() {
-          Text(urgent.label)
+          Text(this.mostUrgentWindow(info).label)
             .fontSize(12)
             .fontColor('#666666')
-          Text(`${urgent.remainingPercent.toFixed(0)}%`)
+          Text(`${this.mostUrgentWindow(info).remainingPercent.toFixed(0)}%`)
             .fontSize(12)
-            .fontColor(this.progressColor(urgent.remainingPercent))
+            .fontColor(this.progressColor(this.mostUrgentWindow(info).remainingPercent))
         }
         .width('100%')
         .justifyContent(FlexAlign.SpaceBetween)
@@ -178,9 +193,9 @@ struct Index {
             .backgroundColor('#E8E8E8')
             .borderRadius(3)
           Row()
-            .width(`${urgent.remainingPercent}%`)
+            .width(`${this.mostUrgentWindow(info).remainingPercent}%`)
             .height(6)
-            .backgroundColor(this.progressColor(urgent.remainingPercent))
+            .backgroundColor(this.progressColor(this.mostUrgentWindow(info).remainingPercent))
             .borderRadius(3)
         }
         .width('100%')
@@ -195,7 +210,7 @@ struct Index {
       }
 
       Row() {
-        Text(`更新: ${this.formatTime(info?.updatedAt ?? 0)}`)
+        Text(`更新: ${this.formatTime(info.updatedAt)}`)
           .fontSize(11)
           .fontColor('#AAAAAA')
           .layoutWeight(1)
@@ -241,7 +256,7 @@ struct Index {
         List({ space: 12 }) {
           ForEach(this.providers, (provider: ProviderConfig) => {
             ListItem() {
-              this.ProviderItem(provider)
+              this.ProviderItem(provider, this.getInfo(provider.id))
             }
             .swipeAction({ end: this.DeleteButton(provider) })
           }, (provider: ProviderConfig) => provider.id)

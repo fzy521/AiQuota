@@ -5,7 +5,12 @@ import { ProviderStore } from '../common/store/ProviderStore';
 import { UsageCache } from '../common/store/UsageCache';
 import { QuotaService } from '../common/api/QuotaService';
 
-const TYPE_OPTIONS: { value: string }[] = [
+// ArkTS 不允许内联对象类型声明，需显式接口
+interface TypeOption {
+  value: string;
+}
+
+const TYPE_OPTIONS: TypeOption[] = [
   { value: 'Kimi' },
   { value: 'GLM' },
   { value: 'MiniMax' },
@@ -22,30 +27,31 @@ function generateId(): string {
 @Component
 struct ProviderEditPage {
   private context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
-  @State id: string = '';
+  // 命名避开 CustomComponent 基类的 id/enabled 属性
+  @State editId: string = '';
   @State name: string = '';
   @State type: ProviderType = 'kimi';
   @State apiKey: string = '';
   @State baseUrl: string = '';
   @State accessToken: string = '';
   @State userId: string = '';
-  @State enabled: boolean = true;
+  @State isEnabled: boolean = true;
 
   async aboutToAppear(): Promise<void> {
     const params = router.getParams() as Record<string, string> | undefined;
-    const editId = params?.['id'];
-    if (editId) {
+    const editTarget = params?.['id'];
+    if (editTarget) {
       const list = await ProviderStore.get(this.context);
-      const found = list.find(p => p.id === editId);
+      const found = list.find(p => p.id === editTarget);
       if (found) {
-        this.id = found.id;
+        this.editId = found.id;
         this.name = found.name;
         this.type = found.type;
         this.apiKey = found.apiKey;
         this.baseUrl = found.baseUrl;
         this.accessToken = found.accessToken;
         this.userId = found.userId;
-        this.enabled = found.enabled;
+        this.isEnabled = found.enabled;
       }
     } else {
       this.name = defaultProviderName(this.type);
@@ -57,16 +63,16 @@ struct ProviderEditPage {
   }
 
   private async save(): Promise<void> {
-    const isNew = !this.id;
+    const isNew = !this.editId;
     const provider: ProviderConfig = {
-      id: isNew ? generateId() : this.id,
+      id: isNew ? generateId() : this.editId,
       name: this.name || defaultProviderName(this.type),
       type: this.type,
       baseUrl: this.baseUrl,
       apiKey: this.apiKey,
       accessToken: this.accessToken,
       userId: this.userId,
-      enabled: this.enabled,
+      enabled: this.isEnabled,
     };
 
     let providers = await ProviderStore.get(this.context);
@@ -97,7 +103,7 @@ struct ProviderEditPage {
           .fontSize(16)
           .fontColor('#1677FF')
           .onClick(() => router.back())
-        Text(this.id ? '编辑 Provider' : '添加 Provider')
+        Text(this.editId ? '编辑 Provider' : '添加 Provider')
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
           .layoutWeight(1)

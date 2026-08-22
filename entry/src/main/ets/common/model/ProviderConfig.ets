@@ -11,7 +11,16 @@ export interface ProviderConfig {
   enabled: boolean;
 }
 
-export const PROVIDER_TYPE_LABELS: Record<ProviderType, string> = {
+// ArkTS 不允许 Record<联合类型, T> 形式的对象字面量，用显式接口
+export interface ProviderTypeLabels {
+  kimi: string;
+  glm: string;
+  minimax: string;
+  deepseek: string;
+  newapi: string;
+}
+
+export const PROVIDER_TYPE_LABELS: ProviderTypeLabels = {
   kimi: 'Kimi',
   glm: 'GLM',
   minimax: 'MiniMax',
