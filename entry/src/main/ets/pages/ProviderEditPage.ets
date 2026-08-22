@@ -1,6 +1,6 @@
 import router from '@ohos.router';
 import common from '@ohos.app.ability.common';
-import { ProviderConfig, ProviderType, PROVIDER_TYPE_LABELS, defaultProviderName } from '../common/model/ProviderConfig';
+import { ProviderConfig, ProviderType, providerTypeLabel, defaultProviderName } from '../common/model/ProviderConfig';
 import { ProviderStore } from '../common/store/ProviderStore';
 import { UsageCache } from '../common/store/UsageCache';
 import { QuotaService } from '../common/api/QuotaService';
@@ -124,7 +124,7 @@ struct ProviderEditPage {
             .width(80)
           Select(TYPE_OPTIONS)
             .selected(this.typeIndex())
-            .value(PROVIDER_TYPE_LABELS[this.type])
+            .value(providerTypeLabel(this.type))
             .onSelect((index: number) => {
               this.type = TYPES[index];
               this.name = defaultProviderName(this.type);

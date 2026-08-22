@@ -11,23 +11,22 @@ export interface ProviderConfig {
   enabled: boolean;
 }
 
-// ArkTS 不允许 Record<联合类型, T> 形式的对象字面量，用显式接口
-export interface ProviderTypeLabels {
-  kimi: string;
-  glm: string;
-  minimax: string;
-  deepseek: string;
-  newapi: string;
+// ArkTS 不允许对接口字段做索引访问（arkts-no-props-by-index），用 switch 函数
+export function providerTypeLabel(type: ProviderType): string {
+  switch (type) {
+    case 'kimi':
+      return 'Kimi';
+    case 'glm':
+      return 'GLM';
+    case 'minimax':
+      return 'MiniMax';
+    case 'deepseek':
+      return 'DeepSeek';
+    case 'newapi':
+      return 'NewAPI';
+  }
 }
 
-export const PROVIDER_TYPE_LABELS: ProviderTypeLabels = {
-  kimi: 'Kimi',
-  glm: 'GLM',
-  minimax: 'MiniMax',
-  deepseek: 'DeepSeek',
-  newapi: 'NewAPI'
-};
-
 export function defaultProviderName(type: ProviderType): string {
-  return PROVIDER_TYPE_LABELS[type];
+  return providerTypeLabel(type);
 }

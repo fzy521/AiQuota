@@ -2,7 +2,7 @@ import router from '@ohos.router';
 import common from '@ohos.app.ability.common';
 import formProvider from '@ohos.app.form.formProvider';
 import formBindingData from '@ohos.app.form.formBindingData';
-import { ProviderConfig, PROVIDER_TYPE_LABELS } from '../common/model/ProviderConfig';
+import { ProviderConfig, providerTypeLabel } from '../common/model/ProviderConfig';
 import { UsageInfo, UsageWindow } from '../common/model/UsageInfo';
 import { ProviderStore } from '../common/store/ProviderStore';
 import { UsageCache } from '../common/store/UsageCache';
@@ -150,11 +150,11 @@ struct Index {
   ProviderItem(provider: ProviderConfig, info: UsageInfo) {
     Column() {
       Row() {
-        Text(provider.name || PROVIDER_TYPE_LABELS[provider.type])
+        Text(provider.name || providerTypeLabel(provider.type))
           .fontSize(16)
           .fontWeight(FontWeight.Medium)
           .layoutWeight(1)
-        Text(PROVIDER_TYPE_LABELS[provider.type])
+        Text(providerTypeLabel(provider.type))
           .fontSize(12)
           .fontColor('#999999')
       }
